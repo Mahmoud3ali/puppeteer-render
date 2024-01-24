@@ -28,6 +28,9 @@ const scrapeLogic = async (req, res) => {
       process.env.NODE_ENV === "production"
         ? process.env.PUPPETEER_EXECUTABLE_PATH
         : puppeteer.executablePath(),
+    width: 1192,
+    height: 1684,
+    deviceScaleFactor: 2,
   });
   try {
     const base64PDFs = await Promise.all(
