@@ -6,7 +6,22 @@ require("dotenv").config();
 const generatePdf = async (params) => {
   const page = await params.browser.newPage();
   await page.setContent(params.html, { waitUntil: "networkidle0" });
-  const pdfBuffer = await page.pdf({ format: "A4" });
+  await page.addStyleTag({
+    content: `
+      @page {
+        size: A4;
+        margin-top: 60pt;
+        margin-bottom: 60pt;
+        background-color: red;
+      }
+      @page :first {
+        size: A4;
+        margin-top: 0px;
+        margin-bottom: 60pt;
+      }
+    `,
+  });
+  const pdfBuffer = await page.pdf();
   const base64 = pdfBuffer.toString("base64");
   return base64;
 };
