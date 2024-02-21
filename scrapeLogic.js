@@ -1,7 +1,11 @@
 const puppeteer = require("puppeteer");
-const { PDFDocument } = require("pdf-lib");
-
+const { PDFDocument, rgb } = require("pdf-lib");
+const fs = require("fs");
 require("dotenv").config();
+
+const getImageBytes = async (path) => {
+  return new Uint8Array(fs.readFileSync(path));
+};
 
 const generatePdf = async (params) => {
   const page = await params.browser.newPage();
@@ -62,11 +66,29 @@ const scrapeLogic = async (req, res) => {
     );
 
     const mergedPDF = await PDFDocument.create();
+    const logo = await getImageBytes("./assets/logo.jpg");
 
     for (const pdfDoc of pdfDocs) {
       const pages = await mergedPDF.copyPages(pdfDoc, pdfDoc.getPageIndices());
       pages.forEach((page) => mergedPDF.addPage(page));
     }
+    const logoImage = await mergedPDF.embedJpg(logo);
+    const x = mergedPDF.getPages().map((page, index) => {
+      const [width, height] = [page.getWidth(), page.getHeight()];
+      const jpgDims = logoImage.scale(0.05);
+      page.drawText((index + 1).toString(), {
+        x: width / 2,
+        y: 8,
+        size: 12,
+        color: rgb(188 / 256, 17 / 256, 188 / 256),
+      });
+      page.drawImage(logoImage, {
+        x: width - jpgDims.width - 4,
+        y: -20,
+        width: jpgDims.width,
+        height: jpgDims.height,
+      });
+    });
 
     const mergedPDFBytes = await mergedPDF.saveAsBase64();
 
