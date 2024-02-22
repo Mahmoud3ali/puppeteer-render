@@ -73,11 +73,15 @@ const scrapeLogic = async (req, res) => {
       pages.forEach((page) => mergedPDF.addPage(page));
     }
     const logoImage = await mergedPDF.embedJpg(logo);
-    const x = mergedPDF.getPages().map((page, index) => {
-      const [width, height] = [page.getWidth(), page.getHeight()];
+    mergedPDF.getPages().map((page, index) => {
+      if (index === 0) {
+        return;
+      }
+
+      const width = page.getWidth();
       const jpgDims = logoImage.scale(0.05);
       page.drawText((index + 1).toString(), {
-        x: width / 2,
+        x: 8,
         y: 8,
         size: 12,
         color: rgb(188 / 256, 17 / 256, 188 / 256),
