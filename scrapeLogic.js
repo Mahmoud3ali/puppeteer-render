@@ -74,18 +74,17 @@ const scrapeLogic = async (req, res) => {
     }
     const logoImage = await mergedPDF.embedJpg(logo);
     mergedPDF.getPages().map((page, index) => {
-      if (index === 0) {
-        return;
-      }
-
       const width = page.getWidth();
       const jpgDims = logoImage.scale(0.05);
-      page.drawText((index + 1).toString(), {
-        x: 8,
-        y: 8,
-        size: 12,
-        color: rgb(188 / 256, 17 / 256, 188 / 256),
-      });
+
+      if (index !== 0) {
+        page.drawText(index.toString(), {
+          x: 8,
+          y: 8,
+          size: 12,
+          color: rgb(188 / 256, 17 / 256, 188 / 256),
+        });
+      }
       page.drawImage(logoImage, {
         x: width - jpgDims.width - 4,
         y: -20,
